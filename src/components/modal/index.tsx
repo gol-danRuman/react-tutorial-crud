@@ -13,7 +13,7 @@ const ModalView: React.SFC<IModalViewProps> = props => {
   const { onToogle, title, show } = props;
   return (
     <MDBContainer>
-      <MDBModal toogle={onToogle} className="addModal" isOpen={show}>
+      <MDBModal toogle={() => onToogle} className="addModal" isOpen={show}>
         <MDBModalHeader
           className="text-center"
           titleClass="w-100 font-weight-bold"

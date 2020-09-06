@@ -10,8 +10,8 @@ export default class CustomTable extends React.Component<any,any> {
           <MDBTableHead color="primary-color" textWhite>
             <tr>
               {
-                columns.map((column:any) => {
-                  return <th>{column.field}</th>
+                columns.map((column:any, index: any) => {
+                  return <th key={index}>{column.field}</th>
                 }
                 )
               }
