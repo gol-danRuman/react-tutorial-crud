@@ -3,6 +3,7 @@ import { MDBRow, MDBBtn } from "mdbreact";
 import { MDBInput } from "mdbreact";
 import { MDBContainer } from "mdbreact";
 import { MDBCol } from "mdbreact";
+import { postBookApi, updateBookApi } from "../../../Api/bookApi";
 
 export default class HomeForm extends React.Component<any, any> {
   constructor(props: any){
@@ -18,30 +19,57 @@ export default class HomeForm extends React.Component<any, any> {
 
     this.addBook = this.addBook.bind(this);
     this.editBook = this.editBook.bind(this);
+    
   }
 
   handleInput = (e: any) => {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
-}
+      this.setState({
+        [e.target.name]: e.target.value
+      })
+  }
 
 addBook = () => {
+  this.props.onToogle();
   const name = this.state.name == null ? this.props.row.name : this.state.name;
   const price = this.state.price == null ? this.props.row.price : this.state.price;
   const publication = this.state.publication == null ? this.props.row.publication : this.state.publication;
-  const rating = this.state.price == null ? this.props.row.price : this.state.price;
-  const author = this.state.price == null ? this.props.row.price : this.state.price;
-  console.log("Name :"+ name+" Prince: "+price+" Publication : "+publication+" Rating : "+rating+"Author : "+ author)
+  const rating = this.state.rating == null ? this.props.row.rating : this.state.rating;
+  const author = this.state.author == null ? this.props.row.author : this.state.author;
+  const form = new FormData();
+  form.append("name", name);
+  form.append("price", price);
+  form.append("publication", publication);
+  form.append("rating", rating);
+  form.append("author", author);
+  postBookApi(form)
+            .then((res: any) => {
+                this.props.updateRow(true, res);
+            })
+            .catch((err: any) => {
+                console.log('Book Add On Error');
+            });
 };
 
 editBook = () => {
+  this.props.onToogle();
   const name = this.state.name == null ? this.props.row.name : this.state.name;
   const price = this.state.price == null ? this.props.row.price : this.state.price;
   const publication = this.state.publication == null ? this.props.row.publication : this.state.publication;
-  const rating = this.state.price == null ? this.props.row.price : this.state.price;
-  const author = this.state.price == null ? this.props.row.price : this.state.price;
-  console.log("Name :"+ name+" Prince: "+price+" Publication : "+publication+" Rating : "+rating+"Author : "+ author)
+  const rating = this.state.rating == null ? this.props.row.rating : this.state.rating;
+  const author = this.state.author == null ? this.props.row.author : this.state.author;
+  const form = new FormData();
+  form.append("name", name);
+  form.append("price", price);
+  form.append("publication", publication);
+  form.append("rating", rating);
+  form.append("author", author);
+  updateBookApi(this.props.row.bookId, form)
+            .then((res: any) => {
+                this.props.updateRow(false, res);
+            })
+            .catch((err: any) => {
+                console.log('Book Update On Error');
+            });
 };
 
   render() {

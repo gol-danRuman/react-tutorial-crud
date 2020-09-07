@@ -3,6 +3,10 @@ import { MDBRow, MDBBtn, MDBContainer } from "mdbreact";
 import ModalView from "../modal";
 import CustomTable from "../table";
 import HomeForm from "./home_form";
+import "./home_page.scss";
+
+import { getAllBookApi, deleteBookApi } from "../../Api/bookApi";
+
 const rows = [
   {
     id: "1",
@@ -53,10 +57,26 @@ export default class HomePage extends React.Component<any, any> {
     super(props);
     this.state = {
       modalOpen: false,
-      currentRow: {}
+      currentRow: {},
+      rows:[]
     };
     this.toogleModal = this.toogleModal.bind(this);
     this.deleteRow = this.deleteRow.bind(this);
+    this.updateRow = this.updateRow.bind(this);
+  }
+
+  componentDidMount(){
+      getAllBookApi()
+        .then( (res: any) => {
+          const bookList = res.map( (r: any) => ({
+            ...r,
+            bookId: r.id
+          }))
+          this.setState({rows: bookList})
+        })
+        .catch((err : any) => {
+          alert('Error loading books list data')
+        })
   }
 
   toogleModal = () => {
@@ -65,9 +85,31 @@ export default class HomePage extends React.Component<any, any> {
     });
   };
 
+  updateRow = (addStatus: boolean, row: any) => {
+    const allRows = this.state.rows;
+    if(addStatus){
+        allRows.push(row);
+        
+    }else{
+      const elementIndex = allRows.findIndex( (element: any) => element.bookId == row.bookId);
+      allRows[elementIndex] = row;
+    }
+    this.setState({
+      rows: allRows
+    })
+    
+  }
   deleteRow = (row: any) => {
     alert("Are you sure ?");
-    console.log(row);
+    deleteBookApi(row.bookId)
+      .then( (res: any) => {
+        this.setState({
+          rows: this.state.rows.filter((r:any) => r.bookId != row.bookId)
+        })
+      })
+      .catch((err : any) => {
+        alert('Error loading company data')
+      })
   };
  
 
@@ -98,15 +140,16 @@ export default class HomePage extends React.Component<any, any> {
             <HomeForm 
               row={this.state.currentRow} 
               onToogle={this.toogleModal} 
+              updateRow={this.updateRow}
             />
           </ModalView>
         </MDBContainer>
         <MDBContainer>
           <CustomTable columns={columns}>
-            {rows.map((row: any, index: number) => {
+            {this.state.rows.map((row: any, index: number) => {
               return (
                 <tr key={index}>
-                  <td>{row.id}</td>
+                  <td>{index+1}</td>
                   <td>{row.name}</td>
                   <td>{row.price}</td>
                   <td>{row.publication}</td>
@@ -118,7 +161,7 @@ export default class HomePage extends React.Component<any, any> {
                       color="blue"
                       onClick={() => {
                         this.toogleModal();
-                        this.setState({ currentRow: rows[index] });
+                        this.setState({ currentRow: this.state.rows[index] });
                       }}
                     >
                       Edit
@@ -126,7 +169,7 @@ export default class HomePage extends React.Component<any, any> {
                     <MDBBtn
                       color="red"
                       onClick={() => {
-                        this.deleteRow(rows[index]);
+                        this.deleteRow(this.state.rows[index]);
                       }}
                     >
                       Delete
